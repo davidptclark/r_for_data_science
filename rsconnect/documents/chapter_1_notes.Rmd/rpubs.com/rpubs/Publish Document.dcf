@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/384063/fe95738ea9c147a8bd837b9f87d6a077
+bundleId: https://api.rpubs.com/api/v1/document/384063/fe95738ea9c147a8bd837b9f87d6a077
+url: http://rpubs.com/davidptclark/384063
+when: 1524850218.76414

@@ -1,0 +1,195 @@
+---
+title: 'Chapter 1: Data Visualisation with ggplot2'
+author: "David Clark"
+date: "26/04/2018"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Loading in packages and data frames
+
+First, we're going to load in the **tidyverse** pacakge, which will in turn load in other packages that are useful in the data preparation stage.
+
+```{r}
+library(tidyverse)
+```
+
+The above shows a number of things:
+
+- The **tidyverse** package is installed
+- The suite of packages were loaded correctly
+- There are some conflicts (but _should_ not present any issues)
+
+Within the **ggplot2** package is the dataset _mpg_. We can look at a subsample of the data (in a data frame termed a _tibble_) by simple running the name of the dataset as a command:
+
+```{r}
+mpg
+```
+
+Whilst the name of most variables are self-explanatory:
+
+- _displ_ denotes the car's engine size in litres
+- _why_ denotes the car's fuel efficiency on the highway in miles per gallons
+
+##Creating a ggplot
+
+For example, let us look at a scatter plot between _displ_ and _hwy_ using the ggplot2 package:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+The general syntax:
+```{r, eval=FALSE}
+ggplot(data = **x**) +
+  geom_[**graph type**](mapping = aes(x = **xvar**, y = **yvar**))
+```
+
+The above plot is informative; it displays a negative association between both variables and the observations are distinct. That being said, what if we want to look and how these observations are distrbuted by another attributed, say by car type (_class_).
+
+We can add to the asethetics to augment the plot, in order to be able to colour code the observations by _class_:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, colour = class))
+```
+
+
+This provides a useful addition to the graphical disposition.  Typically, SUV, subcompact and pickup types are less fuel-efficient and have a higher fuel capacity, whilst the opposite is ture for the other car types.
+
+There are other options of identifying the class of the car other than colour.
+
+We can augment the size of each data point corresponding to the car type, change the level of transparaency or use different shapes for the data points:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+```
+The warning here is shown to signify the issue with using _discrete_ data in line with the size aesthetic; generally uninformative.
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+```
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+```
+
+This warning is a little more serious; we essentially have too many classes and after the plotting of 6 classes, additional classes will not be plotted.
+
+As an aside, if we are uninterested in the classification of groups in the plot, we can just choose to change the colour of all data points:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes( x = displ, y = hwy), colour = "red")
+```
+
+Be careful - unlike the other options, the colour option require that the chosen option be surrounded by quotation marks. Notice also that this time, to set the aesthetic manually, the option is outside the aes().
+
+##Facets
+
+We can, if desired, have plots within plots, that is to add an additional variable to the ggplot.
+
+The way to do so is to add another function to the ggplot expression:
+
+```{r, eval = FALSE}
+facet_wrap()
+```
+
+The variable that you include in this function as an argument, should be **discrete**, as we are looking at the relationship between _hwy_ and _displ_ by groups.
+
+For example, similar to our first example, let us try to plot the relationship for the different classes of car:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes( x = displ, y = hwy )) +
+  facet_wrap(~ class, nrow =2)
+```
+
+Notice, that irrespective of the number of variables, a ~ is needed to seperate variables.
+
+We can also use the following:
+
+```{r, eval=FALSE}
+facet_grid()
+```
+
+This allows you to look at the data by many characteristics in the form of a grid. Let's, for example, choose _cyl_ and _drv_:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ cyl)
+```
+
+##Geometric objects
+
+Thinking a little more about the grammar of graphics, more genereally, **geoms** are the geometrical object that a plot uses to represent data. The type of geom we use depends on what kind of data we are trying to visualise and exactly what we are trying to express.
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+Using the **geom_smooth** option, fits a polynomial surface determined by one or more numerical predictors, using local fitting.
+
+It is also possible to plot the same smoothed function for each category of a variable:
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+The variable _drv_ expresses the drivetrain of the car, that is front-wheel, four-wheel or real-wheel drive.
+
+Notice, that if the option for the displayed legend for _drv_ is false and we add an option for colour within aesthetic, the lines then become differentiated by colour:
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(
+    mapping = aes(x = displ, y = hwy, colour = drv),
+  show.legend = FALSE
+  )
+```
+
+Notice how the code formatting has changed somewhat, compared to the simpler case. This is compulsory but lends itself to clear written code.
+
+Implicit in the above seems to be some dilemma about haveing to pick just one plot type but this isn't the case. We are easily able to overlay graphics and plot types:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y=hwy)) +
+  geom_smooth(mapping = aes(x = displ, y=hwy))
+```
+
+Here, we have the graph using the point geom and we have overlayed a graph using the polynomial smooth.
+
+The above syntax can be repetitive and as such, we can state the mappings and aesthetics as arguments in the ggplot function and leave the arguments for both point and smooth geoms as empty:
+
+```{r}
+ggplot(data = mpg, mapping = aes(x=displ, y=hwy)) +
+  geom_point() +
+  geom_smooth()
+```
+
+In addition, we can specify that only one layer of the graphic be categorised by a variable, for example, perhaps we just want to augment the point layer by class:
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y =hwy)) +
+  geom_point(mapping = aes(colour = class)) +
+  geom_smooth()
+```
+
